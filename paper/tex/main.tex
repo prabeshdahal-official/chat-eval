@@ -1,0 +1,807 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{lmroman10-regular.otf}[
+  BoldFont=lmroman10-bold.otf,
+  ItalicFont=lmroman10-italic.otf,
+  BoldItalicFont=lmroman10-bolditalic.otf]
+\newfontfamily\devanagari{NotoSansDevanagari-Regular.ttf}[Path=fonts/]
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{microtype}
+\usepackage{caption}
+\usepackage[hidelinks]{hyperref}
+
+\captionsetup{font=small,labelfont=bf,skip=4pt}
+\graphicspath{{figures/}}
+\setlength{\parskip}{2pt}
+
+\title{\bfseries Chatting with AI Models: A Zero-Budget, Repeatable Test of\\ Four Chat Models on 52 Fixed Questions}
+
+\author{Prabesh Dahal\\
+\small Independent Researcher, Kathmandu, Nepal\\
+\small \href{mailto:krip.prabesh@gmail.com}{krip.prabesh@gmail.com} \quad
+ORCID 0009-0002-1716-0724 \quad
+\href{https://prabeshdahal.info.np/}{prabeshdahal.info.np}}
+
+\date{14 November 2026 \quad\textbar\quad Primary category: cs.AI}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent\textbf{Problem.} Many papers say that one chat model is better than another. A reader often cannot check the claim. The questions are private, the scoring is hidden, and the run cannot be repeated.
+
+\noindent\textbf{Protocol.} We test four chat models on one fixed set of 52 questions: Qwen3.5 4B, Qwen3.5 9B and Gemma 4 12B, which run on a free Colab GPU, and Gemini 3.1 Flash Lite, which runs on a free API tier. We set temperature to 0, so chance does not change answers. That gives 208 logged answers. No answer was empty, cut off or lost.
+
+\noindent\textbf{Scoring.} We score each answer two ways. Retrieval score (\texttt{acc\_contains}) is 1 if the expected answer appears anywhere in the reply. Answer-first score (\texttt{acc\_strict}) is 1 only if the answer appears in the first 12 words. The second score asks: did the model say it early, or bury it?
+
+\noindent\textbf{Results.} Retrieval score was 0.85 to 0.925. Answer-first score was 0.55 to 0.675. All four knew most answers but often said them late. The 95\% ranges overlapped, so we claim no winner.
+
+\noindent\textbf{Release.} We publish all 208 raw answers as JSONL files and the harness in a public repository. Anyone can re-run the test or check any number.
+
+\medskip
+\noindent\textbf{Keywords:} chat model evaluation; open-weight models; reproducibility; answer-first scoring; low-resource languages; free-tier benchmarking
+\end{abstract}
+
+\section{Introduction}
+
+\subsection{Why we need tests that other people can repeat}
+
+Papers often end with a table. One column is a model name, another column is a score, and the model with the biggest score is called the best. A reader cannot check any of it. The questions were never published. The scoring rule is described in one sentence. The code is not shared. If the reader runs the same model a week later, nothing matches.
+
+This is a problem for two groups. Readers cannot tell a real gain from a lucky run. And researchers with little money cannot join the discussion, because a full test of a large model costs more than they have.
+
+This paper is a small answer to both problems. We fix the questions. We fix the scoring. We publish every answer. And we do it with no money at all.
+
+\subsection{The zero-budget limit as part of the method}
+
+We had no budget. That is not a detail to hide in a footnote. It shaped every choice in this study.
+
+Three models run on a free Google Colab GPU, using Ollama, which is free software. One model runs on a free API tier. We paid nothing for hardware or for tokens. The total cost was \$0.
+
+The limit has a price. We could not test large commercial models. We could not run each model many times. Our test set is small: 52 questions. We state all of this in Section~\ref{sec:limits}, and we do not make claims that the data cannot support.
+
+But the limit has a benefit too. Anyone with a Google account can repeat this work today. The barrier is not money. It is only time.
+
+\subsection{What this paper offers}
+
+We make four contributions.
+
+\begin{enumerate}
+  \item \textbf{A fixed question set.} 52 questions with a written expected answer for each one. The set is published in Appendix~\ref{app:items} and in the code.
+  \item \textbf{Two scoring rules instead of one.} We score each answer for correctness (retrieval) and for directness (answer-first). The second rule measures whether the model puts the answer near the start of the reply or hides it in a long text.
+  \item \textbf{208 logged answers, published raw.} Every reply from every model is saved as one line in a JSONL file. Any number in this paper can be traced back to the exact text that produced it.
+  \item \textbf{A small program that repeats the run.} One Python file, 1,041 lines, one outside library. It saves answers as it goes, so a lost connection does not lose the work.
+\end{enumerate}
+
+\subsection{What this paper does not claim}
+
+We do not claim that one model is best. The 95\% ranges of the four models overlap, so the data cannot rank them (Section~\ref{sec:overlap}).
+
+We do not claim anything about GPT, Claude or other paid models. They were not tested.
+
+We do not claim that model size does not matter in general. We tested two sizes from one model family, on 40 scored questions. That is enough to report a null result for this set, and not enough to say anything wider.
+
+We do not claim that the models are safe or unsafe. We sent six harmless and six harmful requests to each model. That is a probe, not a safety audit.
+
+\section{Related Work}
+
+\subsection{Fixed-answer benchmarks}
+
+The most common way to test a language model is a large set of multiple-choice questions with one correct option. MMLU is the best-known example: 57 subjects, about 16,000 questions, and a single accuracy number per model~\cite{hendrycks2021mmlu}.
+
+This design is cheap to score and easy to compare. But it measures one thing: can the model pick the right option? In a chat window, nobody gives the model four options. The user writes a question and reads a paragraph. A model can be excellent at multiple choice and still be annoying to talk to.
+
+We keep the idea of a fixed set with fixed expected answers, because it makes scoring honest. We drop the multiple-choice format, because chat is not multiple choice.
+
+\subsection{Judged and preference-based evaluation}
+
+A second family asks a strong model to judge answers, or asks many people to vote between two answers. MT-Bench and Chatbot Arena are the common reference points~\cite{zheng2023judge}. The same paper lists the known problems with model judges: they prefer the answer in a certain position, they prefer longer answers, and they prefer text that looks like their own.
+
+HELM takes a wider view and reports many metrics at once, not just accuracy~\cite{liang2023helm}. It also releases all raw prompts and completions, which is the practice we follow here.
+
+Our study borrows one specific idea from this work. If judges prefer longer answers, then length itself is a hidden factor. So we measure the effect directly, without a judge: we ask whether the expected answer appears early or late. That is a mechanical rule, not an opinion, and it needs no judge at all.
+
+\subsection{Evaluation in Nepali and other low-resource languages}
+
+Nepali has little evaluation data compared with English. Recent work has started to build it. One line of work expands Nepali natural language understanding benchmarks across several task types and reports that current models still struggle~\cite{nyachhyon2025nepali}.
+
+Those benchmarks use classification labels. Our five Nepali items are different: they are open chat questions with a short expected answer. Five items cannot measure Nepali ability. They can only show whether a model answers a simple Nepali question in Nepali. We treat them that way, and we say so in the results.
+
+\subsection{Reproducibility as a published artifact}
+
+A result that cannot be re-run is a story, not a measurement. The usual fix is to publish the code, the prompts and the raw outputs next to the paper. HELM does this at a large scale~\cite{liang2023helm}.
+
+We do the same at a small scale, and we add one thing that is often missing: a file of hashes. The manifest lists every file with its size and its SHA-256 value. A reader can prove that no file changed after the run.
+
+\subsection{Verbosity and buried answers}
+
+Long answers are not automatically bad. But a user who asks a short question usually wants a short answer first. Several studies note that model judges and human readers both drift toward longer text~\cite{zheng2023judge}.
+
+We turn this observation into a second score. A model that knows the answer but writes three sentences before it gets there is different from a model that answers at once. A single accuracy number cannot see that difference. Two scores can.
+
+\section{Methodology}
+
+\subsection{Research questions}
+
+We ask four questions.
+
+\begin{itemize}
+  \item \textbf{RQ1.} On fixed questions with fixed expected answers, how often does each model contain the right answer?
+  \item \textbf{RQ2.} Does answer-first formatting differ more between models than correctness does?
+  \item \textbf{RQ3.} Does a larger model from the same family answer more accurately or more directly?
+  \item \textbf{RQ4.} Do the local models and the hosted model behave differently when a request is vague, or when a request is harmful?
+\end{itemize}
+
+\subsection{Design}
+
+Four models, one question set, one run each.
+
+\begin{itemize}
+  \item The same 52 questions go to every model, in the same order.
+  \item Temperature is 0. The model picks the most likely next word each time, so a rerun on the same day gives the same text.
+  \item We do not tune the prompt per model. Every model sees the same words.
+  \item We do not add a system prompt that asks for short answers. If a model is wordy, that is a finding, not a bug to fix.
+\end{itemize}
+
+\subsection{What counts as one observation}
+
+The unit is the \emph{question}, not the API call.
+
+This matters for the statistics. A model that answers 52 questions gives us 52 observations, not one. We therefore compute accuracy over questions and build our ranges by resampling questions.
+
+The denominators differ by metric, and we state each one every time (Table~\ref{tab:denominators}).
+
+\input{tables/denominators.tex}
+
+\subsection{Threats we name before the results}
+
+Four things could make this study weaker than it looks. We list them here so the reader can judge the results with them in mind, and we return to them in Section~\ref{sec:limits}.
+
+\begin{enumerate}
+  \item \textbf{Small n.} 40 scored items means each item is worth 2.5 points.
+  \item \textbf{One run.} We cannot separate model behaviour from a single unlucky session.
+  \item \textbf{One author.} The same person wrote the questions and the expected answers.
+  \item \textbf{Free tiers move.} Model names, limits and availability can change without notice.
+\end{enumerate}
+
+\section{Evaluation Protocol}
+
+\subsection{How the question set was built}
+
+The set has 52 questions in ten groups (Table~\ref{tab:items}). Forty of them have a written expected answer. Twelve are safety probes and have no expected answer; they are scored by behaviour instead.
+
+\input{tables/categories.tex}
+
+One example, exactly as it appears in the code:
+
+\begin{verbatim}
+_it("factual", "contains", "What is the capital city of Nepal?", "Kathmandu")
+\end{verbatim}
+
+Every question is answerable in a few words. That is on purpose. We are not testing whether a model can write an essay. We are testing whether it gives the right short answer, and whether it gives it early.
+
+\subsection{Two scores: retrieval and answer-first}
+
+Every answer gets two numbers. Both are 0 or 1, so both are easy to explain and easy to check.
+
+\textbf{Retrieval score} (\texttt{acc\_contains}). The score is 1 if the expected answer appears anywhere in the reply. This tells us whether the model knew the answer at all.
+
+\textbf{Answer-first score} (\texttt{acc\_strict}). The score is 1 only if the expected answer appears inside the first 12 words of the reply. This tells us whether the model said it at the start.
+
+Here is a real pair of replies to the same question.
+
+\emph{Passes both:} ``The capital city of Nepal is \textbf{Kathmandu}.''
+
+\emph{Passes retrieval only:} ``Nepal is a country in South Asia with a long history. The capital city is \textbf{Kathmandu}, which sits in a valley.''
+
+The second reply is not wrong. It simply makes the reader work. With one score, both replies count as correct, and the difference disappears.
+
+\textbf{Why 12 words?} Twelve words is about one short sentence. A model that answers at once usually lands inside that window. A model that opens with a preamble usually does not. We picked the number by hand, and we report it openly so that a reader who prefers a different cut can recompute from the raw data.
+
+\subsection{How expected answers are matched}
+
+Before matching, both texts are cleaned.
+
+\begin{itemize}
+  \item Letter case is folded.
+  \item Extra spaces and punctuation are removed.
+  \item Devanagari digits are converted to plain digits.
+  \item Two common Nepali spelling variants are folded together: the candrabindu and the anusvara form of the same sound.
+  \item A question may accept a \emph{list} of answers instead of one string. For example, the height of Mount Everest accepts \texttt{8848}, \texttt{8,848}, \texttt{8848.86}, and the Devanagari forms.
+\end{itemize}
+
+Cleaning too much is dangerous, and we found one case of it. Item M19 asked for two Nepali festivals and set the expected answer to a bare comma. Cleaning removed the comma, so the expected answer became an empty string, and the item could never pass for any model. We fixed it by setting the expected answer to \texttt{Dashain}. The item is now one that separates the models (Appendix~\ref{app:matrix}).
+
+That defect is worth reporting. A scoring bug that removes an item quietly looks exactly like a model failure.
+
+\subsection{Behavioural probes}
+
+Three behaviours are counted instead of scored for correctness.
+
+\textbf{Clarification.} Five requests are vague on purpose, for example asking for ``a good book'' with no subject. The good behaviour is to ask what the person wants before answering. We count how many of the five times the model asked a question back.
+
+\textbf{Over-refusal.} Six requests are harmless but sound slightly risky, for example how to store kerosene safely at home. The good behaviour is to answer. A refusal here is a failure, and we count how many of the six.
+
+\textbf{Unsafe compliance.} Six requests are harmful. The good behaviour is to refuse. We count how many of the six the model answered instead.
+
+These three counts use different denominators, and none of them is the same as accuracy. A paper that mixes them into one score hides more than it explains.
+
+\subsection{How uncertainty is reported}
+
+Each accuracy number comes with a 95\% range.
+
+We build the range by resampling. The 40 question results are drawn again with replacement 2,000 times. Each draw gives one accuracy number. The middle 95\% of those numbers is the range we print. This is a bootstrap percentile interval.
+
+We do not run a significance test. A test answers the question ``is model A better than model B'', and we are not asking that. We ask ``can this data tell them apart'', and the answer is: look at the ranges. When every range overlaps every other range, the data cannot rank the models.
+
+\subsection{What happens to a failed answer}
+
+Some replies fail for reasons that have nothing to do with the model's knowledge.
+
+\begin{itemize}
+  \item \textbf{Truncated.} The reply stopped because it hit the output limit.
+  \item \textbf{Empty.} The reply arrived with no visible text.
+  \item \textbf{Error.} The connection or the API failed.
+\end{itemize}
+
+All three are counted in their own columns and removed from accuracy. A cut-off answer is not a wrong answer, and a network error is not a wrong answer either. Mixing them into a score punishes the model for the plumbing.
+
+This rule matters more than it sounds. In our first attempt, 47 of the 50 Qwen items that ran came back empty (Section~\ref{sec:harness}). If those had been scored as wrong, the report would have said the model was bad. The truth was that the harness gave it too little room to answer.
+
+\section{Models and Setup}
+
+\subsection{The four models}
+
+\input{tables/models.tex}
+
+Two of the models come from the same family, at two sizes. That pair is what lets us ask RQ3: does the bigger model do better on the same questions?
+
+The fourth model is hosted. It runs on a free API tier, so we cannot see its memory use, and we do not report a number we did not measure.
+
+Ollama is free software that runs open-weight models on your own machine~\cite{ollama}. The hosted model is reached through the Gemini API~\cite{geminidocs}.
+
+\subsection{Generation settings}
+
+\begin{table}[htbp]
+\centering
+\caption{Generation settings. Thinking mode is off for the local models so that the comparison is against plain chat behaviour, not against a reasoning budget.}
+\label{tab:settings}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Setting & Local models & Hosted model \\
+\midrule
+Temperature & 0 & 0 \\
+Context window & 4,096 tokens & provider default \\
+Output limit & 512 tokens, 1,024 for reruns & 1,024 tokens \\
+Thinking mode & off & not applicable \\
+Retries & 3, with backoff & 3, with backoff \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Two of these need a word of explanation.
+
+\textbf{Thinking mode is off.} Some newer open models write a private reasoning block before the visible answer. That block uses the same token budget. A comparison against a hosted model that does not think would then measure the budget, not the model. So we switch thinking off for everyone and say so: this is each model's plain chat behaviour, not its best behaviour.
+
+\textbf{The output limit was raised for seven items.} Most items used 512 tokens. Seven items were rerun later with a 1,024-token limit, because the first attempt hit the ceiling. This is a deviation from a single clean protocol, and it affects long answers more than the 0/1 accuracy flags. We report it rather than hide it.
+
+\subsection{Hardware and software}
+
+One free Colab session, one GPU, no paid service. Table~\ref{tab:hardware} records the versions, because a reader repeating this needs the same toolchain rather than the same hardware.
+
+\begin{table}[htbp]
+\centering
+\caption{Runtime. Everything ran on a free tier; the cost of the study was zero.}
+\label{tab:hardware}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Item & Value \\
+\midrule
+GPU & Tesla T4, 15,360 MiB, free Colab tier \\
+Python & 3.13.16 \\
+Operating system & Linux 6.6.159 (Colab image) \\
+Ollama & 0.40.16 \\
+Cost & \$0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{The harness}
+\label{sec:harness}
+
+The whole study runs from one file, \texttt{harness.py}: 1,041 lines, one outside library (\texttt{requests}), no framework.
+
+It does four jobs. It holds the questions. It calls the model. It saves each reply to a JSONL file the moment it arrives. It computes the scores and writes the table and the charts.
+
+Saving as it goes is not a detail. A free Colab session can end without warning. Because every answer is on disk as soon as it arrives, a new session can pick up where the old one stopped: the \texttt{-{}-resume} flag skips item IDs that are already recorded.
+
+The first attempt at this study failed in a way that changed the code. Qwen and Gemma are thinking models. With a 256-token budget, the whole budget went into the hidden block, and the visible answer came back empty. In that run, 47 of the 50 Qwen items that ran produced no text. The fix was to switch thinking off and raise the budget. The lesson is now built into the design: an empty answer is a transport problem, and it has its own column.
+
+\section{Results}
+
+\subsection{The data is complete}
+
+Each model answered all 52 items. That gives 208 answers in total.
+
+\begin{table}[htbp]
+\centering
+\caption{Completeness of the run. A model with 40\% missing answers can look excellent on the answers that survived, so this table comes first.}
+\label{tab:complete}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Check & Result \\
+\midrule
+Answers per model & 52 \\
+Unique item IDs per model & 52 \\
+Duplicate items & 0 \\
+Truncated answers & 0 \\
+Empty answers & 0 \\
+Errors & 0 \\
+Total answers & 208 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We report this first because every other table depends on it. A model with 40\% missing answers can look excellent on the answers that survived.
+
+One small detail: the three local files have 54 lines, not 52. The two extra lines record the peak GPU memory for each pass. They are not answers and are not scored. The hosted model's file has 52 lines, because a hosted model reports no memory figure.
+
+\subsection{Accuracy}
+
+\input{tables/accuracy.tex}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{accuracy.png}
+\caption{Accuracy by model under the two rules. Retrieval is high and clustered; answer-first is lower and more spread out.}
+\label{fig:accuracy}
+\end{figure}
+
+Two readings of this table matter.
+
+\textbf{Retrieval is high and close.} Every model puts the right answer somewhere in the reply at least 85 times out of 100. The spread is 7.5 points.
+
+\textbf{Answer-first is lower and wider apart.} The same models answer inside the first 12 words only 55 to 67.5 times out of 100. The spread is 12.5 points.
+
+\subsection{The ranges overlap}
+\label{sec:overlap}
+
+Look at the answer-first ranges: [0.525, 0.825], [0.500, 0.800], [0.400, 0.700], [0.425, 0.725].
+
+Every range overlaps every other range. Gemini's range starts at 0.525, which is below Gemma's point estimate of 0.650. Gemma's range reaches 0.800, which is above Gemini's point estimate.
+
+So the honest sentence is: \textbf{the data cannot rank these four models.} Gemini has the highest point estimate, and a rerun could easily put Gemma on top instead. We print the ordering because it is what we measured, and we refuse to call it a ranking because the ranges do not support one.
+
+\subsection{The gap between knowing and saying}
+
+This is the clearest pattern in the study.
+
+\input{tables/gap.tex}
+
+Every model has a positive gap. Every model sometimes writes a correct answer that a reader has to hunt for. Between 8 and 13 answers out of 40 are of this kind.
+
+The gap is larger than the distance between any two models on the retrieval score. In plain words: models agree more about facts than about how to present them.
+
+\subsection{Bigger model, same family}
+
+The two Qwen models differ by one question.
+
+\begin{table}[htbp]
+\centering
+\caption{The two sizes from one family. A one-item difference, with ranges that nearly coincide, is not a gain we can defend.}
+\label{tab:scale}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+Model & Retrieval & Answer-first & Difference \\
+\midrule
+Qwen3.5 4B & 0.875 & 0.550 & --- \\
+Qwen3.5 9B & 0.875 & 0.575 & $+0.025$ on answer-first (one item) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+A difference of one item, with ranges that almost sit on top of each other, is not a gain we can defend. On this question set, the larger model from the same family did not measure better.
+
+\subsection{Behaviour}
+
+\input{tables/behaviour.tex}
+
+Three observations, each stated at the size it deserves.
+
+\textbf{Clarification splits the models.} The two Qwen models asked a question back 4 times out of 5. Gemma did it once. With five items, this is a description of behaviour, not a rate with a trustworthy interval.
+
+\textbf{Nepali is mostly fine.} Gemini and Gemma answered 5 out of 5; the two Qwen models answered 4 out of 5. Five items in one language cannot measure Nepali ability. They can show that simple Nepali questions were answered in Nepali.
+
+\textbf{No refusals and no harmful answers.} Every model answered all six harmless requests and refused all six harmful ones. That is the result we wanted. It is also the result with the weakest evidence: six probes per direction cannot show that a model is safe.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{safety.png}
+\caption{Behaviour probe outcomes. All four models refused every harmful request and answered every harmless one.}
+\label{fig:safety}
+\end{figure}
+
+\subsection{Speed}
+
+\input{tables/speed.tex}
+
+Gemma has the best median and the worst tail. It usually answers fastest, and sometimes takes half a minute. This is a fact about a shared free GPU, not a stable property of the model.
+
+Speed is also not clean. A model that writes more words takes more seconds. The tokens-per-second column helps, but neither column separates ``slow model'' from ``long answer''.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{latency.png}
+\caption{Response time per model. The 95th percentile depends on answer length as well as on model speed.}
+\label{fig:latency}
+\end{figure}
+
+\section{Analysis}
+
+\subsection{Forty questions is really thirteen}
+
+Appendix~\ref{app:matrix} shows every item for every model. Counting down that table gives a sharper picture than the totals do.
+
+\begin{itemize}
+  \item \textbf{17 items} were answered early by all four models. These questions separate nothing. They confirm the models work, and nothing more.
+  \item \textbf{10 items} were answered early by none of the four. These are the hard ones. They include most of the arithmetic and reasoning items.
+  \item \textbf{13 items} separate the models. A mixed outcome means the item can tell models apart.
+\end{itemize}
+
+So the effective size of this test is 13 items, not 40. Any difference between models in Section~6 comes from those 13. A larger test set would mostly add items of the first kind, unless the new items are chosen to be harder.
+
+\subsection{Where the separating items sit}
+
+\begin{table}[htbp]
+\centering
+\caption{Where the 13 separating items live. Facts are mostly settled; behaviour is not.}
+\label{tab:separating}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Group & Separating items \\
+\midrule
+underspecified & 5 \\
+instruction & 3 \\
+reasoning & 3 \\
+factual & 1 \\
+nepali & 1 \\
+arithmetic, coherence, multiturn & 0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+This is the most useful table in the paper for anyone building a better test. The questions that divide models are not the fact questions. They are the ones with a format rule, a vague request, or more than one step.
+
+\subsection{Why correctness has little room to move}
+
+The 40 items were written to be answerable in a few words. Any competent chat model knows the capital of Nepal. So the retrieval score has little room to move: everyone is near the ceiling.
+
+Directness has more room. A model can be trained, or prompted, to open with a short answer, or to open with a friendly paragraph. Both are reasonable products; they are different products. Our second score measures that difference, and it is the one place where the four models spread out.
+
+This also explains why the answer-first spread (12.5 points between models) is wider than the retrieval spread (7.5 points). We are measuring a habit, and habits differ.
+
+\subsection{Does size help?}
+
+On this set, no measurable gain from 4B to 9B.
+
+Three explanations are possible, and we cannot separate them with this data.
+
+\begin{enumerate}
+  \item \textbf{The test is too easy.} Thirteen separating items cannot resolve a small difference.
+  \item \textbf{The difference is not in accuracy.} A larger model may be better at long reasoning while writing the same short answers to short questions.
+  \item \textbf{Thinking was off.} Both models ran without their reasoning block. Some of what the 9B model offers may only appear when it is allowed to think.
+\end{enumerate}
+
+We report the null result and these three readings together, because the null alone would be misleading.
+
+\subsection{Local versus hosted}
+
+Two descriptive differences stand out.
+
+The hosted model had the fewest late answers: 10 of 40, against 13 for Qwen 4B. The two Qwen models asked a question back far more often than Gemma: 4 of 5 against 1 of 5.
+
+A plausible reading is that the hosted model is tuned for a chat product, where a direct answer is the expected behaviour, while the open-weight models differ in how much they hedge. We label this a hypothesis. Five vague prompts and forty questions cannot confirm it.
+
+\subsection{What a practitioner should take from this}
+
+If you need a short factual answer and you will read only the first line, test the model on your own questions first. All four models here knew most answers; they differed in whether they said them early.
+
+If you need a careful answer to a hard question, this test says nothing about that, because it never asked one.
+
+If you have no budget, a free GPU and one file are enough to run a test this size in an afternoon.
+
+\subsection{Why publishing a null result is useful}
+
+A null result bounds what a small test can detect. Ours says: with 40 scored items, 13 of them separating, a 2.5-point difference is invisible. Anyone planning a comparison of two similar models should know that before spending a week on it.
+
+It also protects the reader from the opposite mistake. If we had reported only point estimates, a table would have shown 0.675 above 0.650, and a summary somewhere would have called that a win.
+
+\section{Limitations}
+\label{sec:limits}
+
+Each limitation is followed by what it means for the reader.
+
+\begin{enumerate}
+  \item \textbf{40 scored items.} Each item is worth 2.5 points. The distance between the third and fourth model is one item. A single flaky answer moves the table.
+  \item \textbf{One run per model.} We have no way to separate a model's habit from one unlucky session. A second run could move every point estimate.
+  \item \textbf{Every range overlaps.} No ranking is supported. Any sentence of the form ``model X is better'' is not supported by this data.
+  \item \textbf{Small subgroups.} Nepali has 5 items, clarification 5, safety 6 per direction. These columns describe behaviour; they do not estimate a rate.
+  \item \textbf{Free and open models only.} No paid frontier model took part. Nothing here extends to them.
+  \item \textbf{Speed is not normalised.} A longer answer takes more seconds. The median and the 95th percentile mix model speed with answer length.
+  \item \textbf{Mixed output limits.} Seven items were rerun with a 1,024-token limit after a 512-token attempt hit the ceiling. This affects length-sensitive numbers more than the 0/1 flags.
+  \item \textbf{Thinking mode was off.} That makes the comparison fair against a hosted model that does not think. It is not each model's best configuration.
+  \item \textbf{One author wrote the expected answers.} There is no second annotator and no agreement score. A different author might accept different answers.
+  \item \textbf{Token F1 is low by design.} The expected answers are one or two words. A correct but wordy reply spreads its tokens over a paragraph, so F1 punishes it. Treat the column as a length-sensitive cross-check.
+  \item \textbf{Effective size is 13 items.} As Section~7.1 shows, 17 items passed for everyone and 10 for nobody. The test discriminates on 13 items, not 40.
+\end{enumerate}
+
+One more, about the free tiers. Model names and limits change. \texttt{gemini-3.1-flash-lite} was available on the day of the run. A reader repeating this later may find a different model behind the same name. That is a property of the field, not of this study, but it limits how long these numbers stay meaningful.
+
+\section{Ethical Considerations}
+
+\subsection{Harmful requests were sent on purpose}
+
+Six harmful requests went to each of the four models. This is standard practice in safety evaluation, and it is still a choice that needs explaining.
+
+The requests ask for dangerous instructions, a phishing email, ransomware, and similar. We do not print the full text of those six prompts in this paper; Appendix~\ref{app:probes} names their topic instead. The full set is in the code, where a researcher who needs to reproduce the probe can read it.
+
+All four models refused all six. No harmful content was produced, so the published data contains refusals only.
+
+\subsection{What the safety numbers do not show}
+
+Zero refusals of harmless requests and zero answers to harmful requests look like a clean bill of health. It is not.
+
+Six probes per direction cannot support a safety claim. They cannot see paraphrases, multi-turn pressure, or requests in Nepali. We report the counts and stop there.
+
+\subsection{The Nepali items are a probe, not a benchmark}
+
+Five questions in Nepali cannot measure Nepali ability. They were written by one author who is a native speaker but not a trained annotator. Two spelling variants are accepted, which helps, but the set is too small to support any claim about the language.
+
+We include them because a study that ignores Nepali entirely would be worse. We keep the claim small on purpose.
+
+\subsection{Cost, access and who can repeat this}
+
+The whole study ran on free tiers. That is a strength for access and a weakness for stability: free tiers can change limits, rate-limit a run, or remove a model without notice.
+
+It also means this design is available to students and independent researchers with no budget. That was part of the point.
+
+\subsection{Data and licence}
+
+The code is released under the MIT licence. The measured outputs---the JSONL files, the tables, the charts and the documents---are released under CC BY 4.0, so they can be reused in other work with attribution.
+
+The data contains model outputs, not personal data. No human subjects were involved. No user conversations were collected.
+
+\section{Reproducibility}
+
+\subsection{What is published}
+
+\begin{table}[htbp]
+\centering
+\caption{The released artifact. Every file is listed with its size and hash in \texttt{MANIFEST.json}.}
+\label{tab:artifact}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Item & What it contains \\
+\midrule
+\texttt{harness.py} & The full program: questions, model calls, scoring, report \\
+Four JSONL files & 208 raw answers, one line each, with prompt, reply, score and timing \\
+\texttt{results.csv} & The summary table, one row per model, 21 columns \\
+\texttt{summary.md} & The same table for reading \\
+Three charts & Accuracy, latency, safety \\
+\texttt{MANIFEST.json} & Size and SHA-256 for every file in the package \\
+\texttt{PROVENANCE.md} & Python, OS, GPU, Ollama version, model IDs, harness hash \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{How to re-run it}
+
+Four commands, in order.
+
+\begin{verbatim}
+# 1. prove the pipeline with no model and no network
+python code/harness.py --models mock --out runs_pilot
+
+# 2. six items on one real model
+python code/harness.py --models qwen35-4b --limit 6 --out runs_pilot
+
+# 3. all four models
+python code/harness.py --models qwen35-4b qwen35-9b \
+       gemma4-12b --out runs --resume
+python code/harness.py --models gemini-flash-lite --out runs --resume
+
+# 4. rebuild the table and charts from whatever is on disk
+python code/harness.py --report --out runs
+\end{verbatim}
+
+Step 1 needs no model. It writes 52 mock answers and proves that the question set, the scorer and the writer all work. Run it before spending hours on real models.
+
+\subsection{How to check that nothing changed}
+
+The manifest lists every file with its hash. One short loop checks them all.
+
+\begin{verbatim}
+import hashlib, json, pathlib
+man = json.loads(pathlib.Path("MANIFEST.json").read_text())
+for e in man["files"]:
+    p = pathlib.Path(e["path"])
+    assert p.exists(), e["path"]
+    assert hashlib.sha256(p.read_bytes()).hexdigest() == e["sha256"], e["path"]
+print("all", len(man["files"]), "files verified")
+\end{verbatim}
+
+The harness is 44,033 bytes and 1,041 lines, with this SHA-256:
+
+\begin{verbatim}
+40d554f8f5abfa8871c969bc07c594a8
+3d10eb29f35dd3ef776b9dce1f21047a
+\end{verbatim}
+
+If a reader's copy differs, the numbers in Section~6 do not apply to it.
+
+\subsection{What a re-run will not give you}
+
+The same decimals.
+
+Model tags rotate, free tiers rate-limit, and hosted endpoints are updated. A rerun should land in the same neighbourhood: retrieval around 0.85 to 0.93, answer-first around 0.55 to 0.70, safety counts at zero. It should not produce 0.675 exactly.
+
+What must repeat is the structure: 52 items, no empty answers, ranges that overlap.
+
+\subsection{Where the artifact lives}
+
+Code and data: \url{https://github.com/prabeshdahal-official/chat-eval}
+
+The repository holds the harness, the 208 answers, the tables, the charts and the documentation. A tagged release holds the archived snapshot of the same package, so a reader can download one file and check it against the manifest.
+
+\section{Conclusion}
+
+We tested four chat models on 52 fixed questions, with no budget, and published every answer.
+
+Two results survive scrutiny. First, all four models retrieve the right answer far more often than they state it early: retrieval 0.85 to 0.925, answer-first 0.55 to 0.675. The gap of 0.20 to 0.325 points is larger than the difference between any two models on retrieval. Models agree more about facts than about how to present them.
+
+Second, a larger model from the same family did not measure better. Qwen3.5 9B and Qwen3.5 4B differ by one item on answer-first accuracy, with ranges that nearly coincide. On this question set, size bought nothing measurable.
+
+We do not rank the models. The 95\% ranges overlap completely, and a table sorted by point estimate is not a ranking.
+
+The most useful next step is not a bigger model. It is a bigger question set, chosen to be hard: 150 to 200 items, weighted toward format rules, vague requests and multi-step reasoning, because those are the 13 items here that actually separated the models.
+
+\begin{thebibliography}{9}
+
+\bibitem{hendrycks2021mmlu}
+D.~Hendrycks, C.~Burns, S.~Basart, A.~Zou, M.~Mazeika, D.~Song, and J.~Steinhardt.
+\newblock Measuring massive multitask language understanding.
+\newblock In \emph{International Conference on Learning Representations (ICLR)}, 2021.
+\newblock arXiv:2009.03300. \url{https://arxiv.org/abs/2009.03300}
+
+\bibitem{liang2023helm}
+P.~Liang, R.~Bommasani, T.~Lee, and others.
+\newblock Holistic evaluation of language models.
+\newblock \emph{Transactions on Machine Learning Research}, 2023.
+\newblock arXiv:2211.09110. \url{https://arxiv.org/abs/2211.09110}
+
+\bibitem{zheng2023judge}
+L.~Zheng, W.-L.~Chiang, Y.~Sheng, and others.
+\newblock Judging LLM-as-a-judge with MT-Bench and Chatbot Arena.
+\newblock In \emph{Advances in Neural Information Processing Systems (NeurIPS)}, Datasets and Benchmarks Track, 2023.
+\newblock arXiv:2306.05685. \url{https://arxiv.org/abs/2306.05685}
+
+\bibitem{nyachhyon2025nepali}
+J.~Nyachhyon, M.~Sharma, P.~Thapa, and B.~K.~Bal.
+\newblock Consolidating and developing benchmarking datasets for the Nepali natural language understanding tasks.
+\newblock arXiv:2411.19244, 2025. \url{https://arxiv.org/abs/2411.19244}
+
+\bibitem{ollama}
+Ollama.
+\newblock Software for running open-weight language models locally.
+\newblock \url{https://ollama.com}
+
+\bibitem{geminidocs}
+Google.
+\newblock Gemini API documentation.
+\newblock \url{https://ai.google.dev/gemini-api/docs}
+
+\end{thebibliography}
+
+\appendix
+
+\section{The 52 items}
+\label{app:items}
+
+Forty main items with their expected answers, six harmless probes, and six harmful probes named by topic.
+
+\input{tables/items_main.tex}
+
+\input{tables/probes_benign.tex}
+
+\input{tables/probes_harmful.tex}
+
+\section{Item-by-item outcome}
+\label{app:matrix}
+
+Answer-first outcome for the 40 scored items. A plus sign means the expected answer appeared within the first 12 words; a dot means it did not.
+
+\input{tables/matrix.tex}
+
+Reading the table: 17 items are $+$ in every column, 10 are $\cdot$ in every column, and 13 are mixed. The mixed rows are the ones that carry the comparison.
+
+\section{Failure and rerun log}
+\label{app:probes}
+
+Four problems occurred during the study. Each one changed the code or the record.
+
+\textbf{1. Empty answers from thinking models.} The first full run used a 256-token output limit. Qwen3.5 and Gemma 4 wrote their private reasoning block first, used the whole budget, and returned no visible text. In that run, 47 of the 50 Qwen items that ran were empty, and the two surviving items produced a meaningless accuracy of 1.0. Fix: thinking off by default, larger output budget, empty answers counted in their own column, affected items rerun.
+
+\textbf{2. A stale summary.} After the fix, a rerun with \texttt{-{}-resume} reused the old records, so the summary looked unchanged. Fix: the old results directory was renamed and kept (not deleted), and the affected items were rerun from a clean state.
+
+\textbf{3. An item that could never pass.} Item M19 asked for two Nepali festivals with a bare comma as the expected answer. Cleaning removed the comma, so the expected answer became empty and the item failed for every model. Fix: the expected answer became \texttt{Dashain}. The item now separates the models.
+
+\textbf{4. Seven items hit the output ceiling.} These were rerun with a 1,024-token limit instead of 512. This is the deviation noted in Section~5.2 and Section~8.
+
+The audit scripts that found problems 1 and 2 are kept in the repository under \texttt{code/cells/}, because a bug that is fixed quietly is a bug a reader cannot check.
+
+\section{Environment and provenance}
+
+\begin{table}[h]
+\centering
+\caption{Machine details for the recorded run.}
+\label{tab:provenance}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Item & Value \\
+\midrule
+Harness & \texttt{harness.py}, 44,033 bytes, 1,041 lines \\
+Harness SHA-256 & see the block below \\
+Python & 3.13.16 \\
+Platform & Linux 6.6.159, Google Colab image \\
+GPU & Tesla T4, 15,360 MiB \\
+Ollama & 0.40.16 \\
+Temperature & 0 \\
+Context window & 4,096 tokens (local) \\
+Output limit & 512 tokens; 1,024 for seven rerun items and the hosted model \\
+Bootstrap & 2,000 resamples, 95\% percentile interval, over items \\
+Package & 19 archive entries: 18 files plus \texttt{MANIFEST.json} \\
+Run date & 14 November 2026 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent The full harness hash, split for the page:
+
+\begin{verbatim}
+40d554f8f5abfa8871c969bc07c594a8
+3d10eb29f35dd3ef776b9dce1f21047a
+\end{verbatim}
+
+\section{Reproduction transcript}
+\label{app:transcript}
+
+The dry run, trimmed to the lines that matter. No model, no network.
+
+\begin{verbatim}
+$ python code/harness.py --models mock --out runs_pilot
+  ...
+  50/52 S10 safe-harmful   ok        0.0s
+  51/52 S11 safe-harmful   ok        0.0s
+  52/52 S12 safe-harmful   ok        0.0s
+[mock] done. errors=0 peak_vram=n/a GB
+charts written to runs_pilot/charts
+\end{verbatim}
+
+The observed summary for the four real models, as printed by the report step:
+
+\begin{verbatim}
+| Gemini 3.1 Flash Lite (free tier) | 40 | 0.675 | 0.525-0.825 | 0.925 |
+| Gemma 4 12B (local)               | 40 | 0.650 | 0.5-0.8     | 0.85  |
+| Qwen3.5 4B (local)                | 40 | 0.550 | 0.4-0.7     | 0.875 |
+| Qwen3.5 9B (local)                | 40 | 0.575 | 0.425-0.725 | 0.875 |
+\end{verbatim}
+
+A reader who runs the four commands in Section~10.2 should see a table of this shape, with the same number of rows and the same number of scored items. The decimals may differ; the structure should not.
+
+\end{document}
