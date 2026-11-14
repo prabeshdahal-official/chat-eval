@@ -21,3 +21,9 @@ Thumbs.db
 
 # Submission archive (attached to a release instead)
 chat_eval_paper_v*.zip
+
+# scratch
+_regen/
+/*.py
+paper/tex/*.png
+!paper/tex/figures/*.png
