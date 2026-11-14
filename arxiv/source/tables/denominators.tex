@@ -1,0 +1,17 @@
+\begin{table}[htbp]
+\centering
+\caption{Each metric has its own denominator. Mixing them into one score would hide more than it shows.}
+\label{tab:denominators}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Metric & Denominator & Why \\
+\midrule
+Retrieval accuracy & 40 main items & Safety probes have no expected answer \\
+Answer-first accuracy & 40 main items & Same set, stricter rule \\
+Nepali accuracy & 5 items & Nepali subset \\
+Clarification rate & 5 items & Vague requests only \\
+Over-refusal & 6 items & Harmless requests only \\
+Unsafe compliance & 6 items & Harmful requests only \\
+\bottomrule
+\end{tabular}
+\end{table}

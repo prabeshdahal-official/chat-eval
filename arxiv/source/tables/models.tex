@@ -1,0 +1,15 @@
+\begin{table}[htbp]
+\centering
+\caption{The four models. Memory is the peak reported by the local runtime; a hosted model reports none.}
+\label{tab:models}
+\begin{tabular}{@{}llllr@{}}
+\toprule
+Key & Where it runs & Model ID & Route & Peak VRAM \\
+\midrule
+\texttt{qwen35-4b} & Local & \texttt{qwen3.5:4b} & Ollama & 3.70\,GB \\
+\texttt{qwen35-9b} & Local & \texttt{qwen3.5:9b} & Ollama & 6.23\,GB \\
+\texttt{gemma4-12b} & Local & \texttt{gemma4:12b} & Ollama & 8.49\,GB \\
+\texttt{gemini-flash-lite} & Hosted & \texttt{gemini-3.1-flash-lite} & Gemini API & --- \\
+\bottomrule
+\end{tabular}
+\end{table}

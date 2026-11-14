@@ -15,6 +15,7 @@
 \usepackage{microtype}
 \usepackage{caption}
 \usepackage[hidelinks]{hyperref}
+\usepackage{placeins}
 
 \captionsetup{font=small,labelfont=bf,skip=4pt}
 \graphicspath{{figures/}}
@@ -22,7 +23,7 @@
 
 \title{\bfseries Chatting with AI Models: A Zero-Budget, Repeatable Test of\\ Four Chat Models on 52 Fixed Questions}
 
-\author{Prabesh Dahal\\
+\author{Krip Prabesh\\
 \small Independent Researcher, Kathmandu, Nepal\\
 \small \href{mailto:krip.prabesh@gmail.com}{krip.prabesh@gmail.com} \quad
 ORCID 0009-0002-1716-0724 \quad
@@ -260,6 +261,8 @@ This rule matters more than it sounds. In our first attempt, 47 of the 50 Qwen i
 
 \input{tables/models.tex}
 
+Table~\ref{tab:models} lists the four models and where each one runs.
+
 Two of the models come from the same family, at two sizes. That pair is what lets us ask RQ3: does the bigger model do better on the same questions?
 
 The fourth model is hosted. It runs on a free API tier, so we cannot see its memory use, and we do not report a number we did not measure.
@@ -284,6 +287,8 @@ Retries & 3, with backoff & 3, with backoff \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Table~\ref{tab:settings} records the settings that matter.
 
 Two of these need a word of explanation.
 
@@ -348,6 +353,8 @@ Total answers & 208 \\
 \end{tabular}
 \end{table}
 
+Table~\ref{tab:complete} lists the checks we ran on the record files.
+
 We report this first because every other table depends on it. A model with 40\% missing answers can look excellent on the answers that survived.
 
 One small detail: the three local files have 54 lines, not 52. The two extra lines record the peak GPU memory for each pass. They are not answers and are not scored. The hosted model's file has 52 lines, because a hosted model reports no memory figure.
@@ -362,6 +369,8 @@ One small detail: the three local files have 54 lines, not 52. The two extra lin
 \caption{Accuracy by model under the two rules. Retrieval is high and clustered; answer-first is lower and more spread out.}
 \label{fig:accuracy}
 \end{figure}
+
+Table~\ref{tab:accuracy} reports the two scores for each model, and Figure~\ref{fig:accuracy} plots the same numbers.
 
 Two readings of this table matter.
 
@@ -380,7 +389,7 @@ So the honest sentence is: \textbf{the data cannot rank these four models.} Gemi
 
 \subsection{The gap between knowing and saying}
 
-This is the clearest pattern in the study.
+This is the clearest pattern in the study. Table~\ref{tab:gap} sets out the numbers and Figure~\ref{fig:gap} draws them.
 
 \input{tables/gap.tex}
 
@@ -397,7 +406,7 @@ The gap is larger than the distance between any two models on the retrieval scor
 
 \subsection{Bigger model, same family}
 
-The two Qwen models differ by one question.
+The two Qwen models differ by one question. Table~\ref{tab:scale} puts the two rows side by side.
 
 \begin{table}[htbp]
 \centering
@@ -419,6 +428,8 @@ A difference of one item, with ranges that almost sit on top of each other, is n
 
 \input{tables/behaviour.tex}
 
+Table~\ref{tab:behaviour} gives the counts, and Figure~\ref{fig:safety} draws every bar at six out of six.
+
 Three observations, each stated at the size it deserves.
 
 \textbf{Clarification splits the models.} The two Qwen models asked a question back 4 times out of 5. Gemma did it once. With five items, this is a description of behaviour, not a rate with a trustworthy interval.
@@ -438,16 +449,21 @@ Three observations, each stated at the size it deserves.
 
 \input{tables/speed.tex}
 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.74\linewidth]{latency.png}
+\caption{Response time per model. The 95th percentile depends on answer length as well as on model speed.}
+\label{fig:latency}
+\end{figure}
+
+Table~\ref{tab:speed} reports the times and Figure~\ref{fig:latency} plots them.
+
 Gemma has the best median and the worst tail. It usually answers fastest, and sometimes takes half a minute. This is a fact about a shared free GPU, not a stable property of the model.
 
 Speed is also not clean. A model that writes more words takes more seconds. The tokens-per-second column helps, but neither column separates ``slow model'' from ``long answer''.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.86\linewidth]{latency.png}
-\caption{Response time per model. The 95th percentile depends on answer length as well as on model speed.}
-\label{fig:latency}
-\end{figure}
+
+\FloatBarrier
 
 \section{Analysis}
 
@@ -482,6 +498,8 @@ arithmetic, coherence, multiturn & 0 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+Table~\ref{tab:separating} groups them by category.
 
 This is the most useful table in the paper for anyone building a better test. The questions that divide models are not the fact questions. They are the ones with a format rule, a vague request, or more than one step.
 
@@ -550,6 +568,8 @@ Each limitation is followed by what it means for the reader.
 
 One more, about the free tiers. Model names and limits change. \texttt{gemini-3.1-flash-lite} was available on the day of the run. A reader repeating this later may find a different model behind the same name. That is a property of the field, not of this study, but it limits how long these numbers stay meaningful.
 
+\FloatBarrier
+
 \section{Ethical Considerations}
 
 \subsection{Harmful requests were sent on purpose}
@@ -578,6 +598,12 @@ The whole study ran on free tiers. That is a strength for access and a weakness 
 
 It also means this design is available to students and independent researchers with no budget. That was part of the point.
 
+\subsection{Use of AI tools}
+
+The author used an AI writing assistant to help draft and edit the prose, and to help build the \LaTeX{} tables from the result files. The assistant did not generate any measured value, did not choose which results to report, and did not pick the questions.
+
+Every number in this paper is computed by the released harness from the released answers, and the author checked each table against \texttt{results.csv} before submission. The author takes full responsibility for all content, including anything the tools produced, in line with the arXiv policy on generative AI.
+
 \subsection{Data and licence}
 
 The code is released under the MIT licence. The measured outputs---the JSONL files, the tables, the charts and the documents---are released under CC BY 4.0, so they can be reused in other work with attribution.
@@ -587,6 +613,8 @@ The data contains model outputs, not personal data. No human subjects were invol
 \section{Reproducibility}
 
 \subsection{What is published}
+
+Table~\ref{tab:artifact} lists what a reader gets.
 
 \begin{table}[htbp]
 \centering
@@ -627,7 +655,7 @@ python code/harness.py --models gemini-flash-lite --out runs --resume
 python code/harness.py --report --out runs
 \end{verbatim}
 
-Step 1 needs no model. It writes 52 mock answers and proves that the question set, the scorer and the writer all work. Run it before spending hours on real models.
+Appendix~\ref{app:transcript} shows what the first command prints. Step 1 needs no model: it writes 52 mock answers and proves that the question set, the scorer and the writer all work. Run it before spending hours on real models.
 
 \subsection{How to check that nothing changed}
 
@@ -664,7 +692,7 @@ What must repeat is the structure: 52 items, no empty answers, ranges that overl
 
 Code and data: \url{https://github.com/prabeshdahal-official/chat-eval}
 
-The repository holds the harness, the 208 answers, the tables, the charts and the documentation. A tagged release holds the archived snapshot of the same package, so a reader can download one file and check it against the manifest.
+The repository holds the harness, the 208 answers, the tables, the charts and the documentation. A reader who wants one file can download the repository as a ZIP from that page and check the contents against \texttt{MANIFEST.json}.
 
 \section{Conclusion}
 
@@ -715,12 +743,14 @@ Google.
 
 \end{thebibliography}
 
+\FloatBarrier
+
 \appendix
 
 \section{The 52 items}
 \label{app:items}
 
-Forty main items with their expected answers, six harmless probes, and six harmful probes named by topic.
+Tables~\ref{tab:items-a}, \ref{tab:probes-benign} and \ref{tab:probes-harmful} give forty main items with their expected answers, six harmless probes, and six harmful probes named by topic.
 
 \input{tables/items_main.tex}
 
@@ -731,7 +761,7 @@ Forty main items with their expected answers, six harmless probes, and six harmf
 \section{Item-by-item outcome}
 \label{app:matrix}
 
-Answer-first outcome for the 40 scored items. A plus sign means the expected answer appeared within the first 12 words; a dot means it did not.
+Table~\ref{tab:matrix} gives the answer-first outcome for the 40 scored items. A plus sign means the expected answer appeared within the first 12 words; a dot means it did not.
 
 \input{tables/matrix.tex}
 
@@ -755,6 +785,8 @@ Four problems occurred during the study. Each one changed the code or the record
 The audit scripts that found problems 1 and 2 are kept in the repository under \texttt{code/cells/}, because a bug that is fixed quietly is a bug a reader cannot check.
 
 \section{Environment and provenance}
+
+Table~\ref{tab:provenance} records the machine details for the recorded run.
 
 \begin{table}[h]
 \centering
@@ -790,7 +822,7 @@ Run date & 14 November 2026 \\
 \section{Reproduction transcript}
 \label{app:transcript}
 
-The dry run, trimmed to the lines that matter. No model, no network.
+The dry run, trimmed to the lines that matter. No model, no network. A reader who reproduces the study should see output of this shape.
 
 \begin{verbatim}
 $ python code/harness.py --models mock --out runs_pilot

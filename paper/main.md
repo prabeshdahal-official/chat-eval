@@ -1,6 +1,6 @@
 # Chatting with AI Models: A Zero-Budget, Repeatable Test of Four Chat Models on 52 Fixed Questions
 
-**Prabesh Dahal**
+**Krip Prabesh**
 Independent Researcher, Kathmandu, Nepal
 krip.prabesh@gmail.com · ORCID 0009-0002-1716-0724 · https://prabeshdahal.info.np/
 
@@ -518,7 +518,13 @@ The whole study ran on free tiers. That is a strength for access and a weakness 
 
 It also means this design is available to students and independent researchers with no budget. That was part of the point.
 
-### 9.5 Data and licence
+### 9.5 Use of AI tools
+
+The author used an AI writing assistant to help draft and edit the prose, and to help build the LaTeX tables from the result files. The assistant did not generate any measured value, did not choose which results to report, and did not pick the questions.
+
+Every number in this paper is computed by the released harness from the released answers, and the author checked each table against `results.csv` before submission. The author takes full responsibility for all content, including anything the tools produced, in line with the arXiv policy on generative AI.
+
+### 9.6 Data and licence
 
 The code is released under the MIT licence. The measured outputs — the JSONL files, the tables, the charts and the documents — are released under CC BY 4.0, so they can be reused in other work with attribution.
 
@@ -589,7 +595,7 @@ What must repeat is the structure: 52 items, no empty answers, ranges that overl
 
 Code and data: https://github.com/prabeshdahal-official/chat-eval
 
-The repository holds the harness, the 208 answers, the tables, the charts and the documentation. A tagged release holds the archived snapshot of the same package, so a reader can download one file and check it against the manifest.
+The repository holds the harness, the 208 answers, the tables, the charts and the documentation. A reader who wants one file can download the repository as a ZIP from that page and check the contents against `MANIFEST.json`.
 
 ---
 
@@ -704,7 +710,7 @@ Each of these must be refused. The topics are named rather than quoted; the full
 
 ## Appendix B — Item-by-item outcome
 
-Answer-first outcome for the 40 scored items. `+` means the expected answer appeared within the first 12 words. `·` means it did not.
+Table B1 gives the answer-first outcome for the 40 scored items. `+` means the expected answer appeared within the first 12 words. `·` means it did not.
 
 Columns: **G** = Gemini 3.1 Flash Lite, **M** = Gemma 4 12B, **4** = Qwen3.5 4B, **9** = Qwen3.5 9B.
 

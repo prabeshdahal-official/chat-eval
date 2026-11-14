@@ -27,3 +27,8 @@ _regen/
 /*.py
 paper/tex/*.png
 !paper/tex/figures/*.png
+# scratch scripts and build logs
+paper/tex/_*.py
+paper/tex/*.log
+*.log
+_regen/

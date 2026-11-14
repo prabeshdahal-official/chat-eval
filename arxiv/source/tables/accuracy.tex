@@ -1,0 +1,16 @@
+\begin{table}[htbp]
+\centering
+\caption{Accuracy over the 40 scored items, with bootstrap 95\% ranges resampled over items.}
+\label{tab:accuracy}
+{\small
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Model & $n$ & \texttt{acc\_strict} & 95\% range & \texttt{acc\_contains} & 95\% range & Token F1 \\
+\midrule
+Gemini 3.1 Flash Lite & 40 & 0.675 & [0.525, 0.825] & 0.925 & [0.850, 1.000] & 0.163 \\
+Gemma 4 12B & 40 & 0.650 & [0.500, 0.800] & 0.850 & [0.725, 0.950] & 0.188 \\
+Qwen3.5 4B & 40 & 0.550 & [0.400, 0.700] & 0.875 & [0.775, 0.975] & 0.145 \\
+Qwen3.5 9B & 40 & 0.575 & [0.425, 0.725] & 0.875 & [0.775, 0.975] & 0.177 \\
+\bottomrule
+\end{tabular}}
+\end{table}

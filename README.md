@@ -648,11 +648,11 @@ Choices that shaped how this repository is packaged, recorded so a reader can se
 | Repository | `https://github.com/prabeshdahal-official/chat-eval` | Every `git clone` command (§9, §11) now uses this URL, and the tree header matches the repo name |
 | Licence | **MIT** for the code, **CC BY 4.0** for the measured outputs | `LICENSE` at the repo root; the split is stated in §19 |
 | Notebook filename | Renamed from `Copy of Chat_Eval_Colab (1).ipynb` to `chat_eval_colab.ipynb` | `research_package/notebook/` — `PROVENANCE.md` and `MANIFEST.json` were updated in the same step, so all hashes still verify |
-| The 345 KB zip | Attached to the `v1.0.0` Release, **not** committed | `.gitignore` keeps archive snapshots out of git; the Release holds the measured bytes |
+| The archive zip | Kept out of git, so `git clone` stays small | `.gitignore` excludes it; the same files are in `research_package/`, and GitHub's "Download ZIP" gives one file |
 
 ### Archived snapshot
 
-The 345 KB archive is attached to the `v1.0.0` Release rather than committed, so `git clone` stays fast while the exact bytes that were measured remain downloadable and hash-verifiable. The working tree here is the same content as `research_package/`.
+The archive is kept out of git so `git clone` stays fast. The same files are in `research_package/`, so GitHub's "Download ZIP" yields one file whose contents can be checked against `MANIFEST.json`.
 
 ---
 
