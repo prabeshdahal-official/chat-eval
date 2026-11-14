@@ -12,7 +12,7 @@ Draft of the title block, abstract and keywords. Written in plain English: short
 
 ## Authors and affiliations
 
-**Krip Prabesh**
+**Prabesh Dahal**
 Independent Researcher, Kathmandu, Nepal
 
 krip.prabesh@gmail.com · ORCID 0009-0002-1716-0724 · https://prabeshdahal.info.np/

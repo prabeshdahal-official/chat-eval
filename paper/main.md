@@ -1,6 +1,6 @@
 # Chatting with AI Models: A Zero-Budget, Repeatable Test of Four Chat Models on 52 Fixed Questions
 
-**Krip Prabesh**
+**Prabesh Dahal**
 Independent Researcher, Kathmandu, Nepal
 krip.prabesh@gmail.com · ORCID 0009-0002-1716-0724 · https://prabeshdahal.info.np/
 

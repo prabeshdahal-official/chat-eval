@@ -6,7 +6,7 @@ Copy these values into the arXiv form. Nothing else is needed.
 Chatting with AI Models: A Zero-Budget, Repeatable Test of Four Chat Models on 52 Fixed Questions
 
 **Authors**
-Krip Prabesh
+Prabesh Dahal
 
 **Affiliation**
 Independent Researcher, Kathmandu, Nepal
