@@ -1,0 +1,20 @@
+# The archive snapshot is attached to a GitHub Release, not committed.
+chat_eval_research_fixed.zip
+chat_eval_research_*.zip
+chat_eval_artifact.zip
+
+# Local run output (results and charts that ship live inside research_package/)
+runs/
+runs_pilot/
+research_package/code/runs/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/

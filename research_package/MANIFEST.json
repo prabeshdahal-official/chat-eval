@@ -1,0 +1,96 @@
+{
+  "created": "2026-11-14T14:00:00",
+  "files": [
+    {
+      "path": "code/cells/02c_archive_stale.py",
+      "bytes": 577,
+      "sha256": "a01c5d0760f6c79119a351c34bea41450f8e0c49aa8fe3782b617fe673a6fb67"
+    },
+    {
+      "path": "code/cells/02d_audit.py",
+      "bytes": 710,
+      "sha256": "f4b6da92a911b60ff5f83db5e71569fa17f3774cec1f706f3ae072c956912716"
+    },
+    {
+      "path": "code/cells/02e_fix_defects.py",
+      "bytes": 1163,
+      "sha256": "e9a6d0587e99d38bfd92170fbb595700729c794425c9944831e52ea57cfe74a1"
+    },
+    {
+      "path": "code/harness.py",
+      "bytes": 44033,
+      "sha256": "40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a"
+    },
+    {
+      "path": "docs/FOR_PROFESSOR.md",
+      "bytes": 1435,
+      "sha256": "6d115c2c56ea4848381b8fcf4fc3523f83ecf992a15e5baf1fa5a65ab3d4a867"
+    },
+    {
+      "path": "docs/PROVENANCE.md",
+      "bytes": 1273,
+      "sha256": "27f315bba831e4de7db1d7669527cdf9193cdbc446df1053657ed7c8a9666f0b"
+    },
+    {
+      "path": "docs/RESULTS.md",
+      "bytes": 1379,
+      "sha256": "7da394cfd5db0b36833e026e0853e824a07c2cfa7869692455b27b0fe29477a4"
+    },
+    {
+      "path": "notebook/chat_eval_colab.ipynb",
+      "bytes": 249200,
+      "sha256": "1ea4cde900c2a1e8ffc4275188302b565279e7f1238c12dce8d25b8224d2feac"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2274,
+      "sha256": "160e7f175583368ce9e9394969d8c9fb2d45994967f1a36f544e6aa926031084"
+    },
+    {
+      "path": "results/charts/accuracy.png",
+      "bytes": 48033,
+      "sha256": "82001d28a7771e9749dd934e99f5c8f3f2c1923890c5172fa9b2e5e033119097"
+    },
+    {
+      "path": "results/charts/latency.png",
+      "bytes": 38990,
+      "sha256": "8b0a9ac978a62573adb9de7b03631b56246960484c6ed4b30a6da68671311c53"
+    },
+    {
+      "path": "results/charts/safety.png",
+      "bytes": 45383,
+      "sha256": "0ec46c9448c8335d35fee083d2d353281e1f2ebf75e0691590bb112ee2b0f42c"
+    },
+    {
+      "path": "results/gemini-flash-lite.jsonl",
+      "bytes": 65397,
+      "sha256": "1cbdc99adcedf84664d80fea35f1c7e59dc9e17f02d0ebff9a0745f7761fa139"
+    },
+    {
+      "path": "results/gemma4-12b.jsonl",
+      "bytes": 59091,
+      "sha256": "88be3aa30a905ce0b461d096bc7079aae715bdb4d0b9979c25a6126825dbaaec"
+    },
+    {
+      "path": "results/qwen35-4b.jsonl",
+      "bytes": 71415,
+      "sha256": "d9d38419d06e2d27c562e67d5e94c529caf4d2bbc11c2ee32a28b671dbb4bff2"
+    },
+    {
+      "path": "results/qwen35-9b.jsonl",
+      "bytes": 70452,
+      "sha256": "710bef86f969dbdb8781f6531125a2d92de4aaa3ab527b872948112f4494c641"
+    },
+    {
+      "path": "results/results.csv",
+      "bytes": 741,
+      "sha256": "f216b138f9ef206930ed3a30bac5012d2b4650aa00248bea395e71318e851cac"
+    },
+    {
+      "path": "results/summary.md",
+      "bytes": 965,
+      "sha256": "be24b6e5a71eff9bb4bd8ad476a34060905944866f8717942d3fbf26de29381f"
+    }
+  ],
+  "total_bytes": 702511
+}
