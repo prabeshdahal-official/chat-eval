@@ -629,7 +629,7 @@ These are real failures hit while building this study, not hypotheticals.
 
 Ordered by value per hour of work:
 
-1. **Write the manuscript.** The measurement is finished; the paper is not. Target `cs.CL` rather than `cs.AI` — this is a language-model evaluation, and `cs.CL` reviewers are the right audience. *(The endorsement already held is for `cs.AI`; verify what the submission form offers before choosing.)*
+1. **Write the manuscript.** The measurement is finished; the paper is not. Primary category `cs.AI` — the endorsed category. *(The study is a language-model evaluation, so arXiv may reclassify it toward `cs.CL`; that is a moderation decision, not a rejection. The released artifact is unaffected either way.)*
 2. **Grow the item set to 150–200.** This is the single biggest improvement. It shrinks every interval and makes subgroup claims defensible.
 3. **Repeat each model 3× at `temperature = 0.3`** to report within-model variance, which is currently unknown.
 4. **Add `gpt-oss:20b` and one Groq/OpenRouter `:free` model** to test whether the "bigger is not better" pattern survives a fourth local model and a second hosted one. The routes already exist in the registry.
