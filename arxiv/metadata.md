@@ -17,8 +17,9 @@ krip.prabesh@gmail.com
 **ORCID**
 0009-0002-1716-0724
 
-**Primary category**
-cs.AI
+**Archive → Subject Class**
+Archive `cs` → Subject class **Artificial Intelligence (cs.AI)**
+The account `prabeshdahal.krip` is registered to the `cs` group, so `cs` appears in the archive list. Pick `cs.AI` from the subject list.
 
 **Cross-list (optional)**
 cs.CL — the study is a language-model evaluation; cross-listing is honest, not strategic.
@@ -26,8 +27,14 @@ cs.CL — the study is a language-model evaluation; cross-listing is honest, not
 **Comments field (fits the 400-character box)**
 21 pages, 18 tables, 4 figures. Code, 208 raw answers and the evaluation harness: https://github.com/prabeshdahal-official/chat-eval
 
-**License**
-CC BY 4.0 — the paper. The repository code stays MIT and the measured outputs stay CC BY 4.0.
+**License (form option: "CC BY: Creative Commons Attribution")**
+Click **CC BY**. It keeps the paper consistent with what the artifact already declares: MIT for the code, CC BY 4.0 for the measured outputs. The choice is irrevocable, so it is recorded here.
+
+Why not the others:
+- `CC BY-SA` — forces every reuse to carry the same licence, which blocks mixing the text into a differently licensed review.
+- `CC BY-NC-SA` / `CC BY-NC-ND` — not open access under most funder rules (Plan S, BOAI), and NC blocks commercial reuse such as a publisher's collected volume.
+- `arXiv perpetual, non-exclusive` — the paper stays readable but readers get no reuse rights; the weakest option for a study whose point is reuse.
+- `CC Zero` — no attribution, so you lose the credit link back to your work.
 
 **Processors**
 Choose **xelatex**. The paper loads `fontspec` and a local Devanagari font; `pdflatex` will fail.
