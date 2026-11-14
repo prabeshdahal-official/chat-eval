@@ -37,7 +37,10 @@ Why not the others:
 - `CC Zero` — no attribution, so you lose the credit link back to your work.
 
 **Processors**
-Choose **xelatex**. The paper loads `fontspec` and a local Devanagari font; `pdflatex` will fail.
+**xelatex** (the scan selects it automatically). The paper loads `fontspec` and a local Devanagari font, so `pdflatex` would fail. TeX Live 2025 is fine.
+
+**Font file**
+`NotoSansDevanagari-Regular.ttf` sits at the **root of the upload, next to `main.tex`**, and is referenced as `\newfontfamily\devanagari{NotoSansDevanagari-Regular.ttf}` with no path option. arXiv's scanner does not read the `Path=` option, which is why an earlier upload reported the font as "missing from the source". If the scan still marks the file "Not used", keep the row anyway — a note is not an error, and deleting it breaks the build.
 
 ## Abstract (plain text, paste as is)
 
