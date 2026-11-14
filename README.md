@@ -649,35 +649,18 @@ Ordered by value per hour of work:
 
 ## 18. Publishing decisions
 
-These four were open questions; they are now decided and applied inside this folder. Nothing here is a placeholder.
+Choices that shaped how this repository is packaged, recorded so a reader can see why the layout looks the way it does.
 
 | Decision | What was chosen | Where it lives |
 |---|---|---|
 | Repository | `https://github.com/prabeshdahal-official/chat-eval` | Every `git clone` command (§9, §11) now uses this URL, and the tree header matches the repo name |
 | Licence | **MIT** for the code, **CC BY 4.0** for the measured outputs | `LICENSE` at the repo root; the split is stated in §19 |
 | Notebook filename | Renamed from `Copy of Chat_Eval_Colab (1).ipynb` to `chat_eval_colab.ipynb` | `research_package/notebook/` — `PROVENANCE.md` and `MANIFEST.json` were updated in the same step, so all hashes still verify |
-| The 345 KB zip | **Not committed.** Attach it to a GitHub Release and link that Release from the repo description | Exists on disk as a local snapshot; `.gitignore` keeps it out of git |
+| The 345 KB zip | Attached to the `v1.0.0` Release, **not** committed | `.gitignore` keeps archive snapshots out of git; the Release holds the measured bytes |
 
-### How to publish, in order
+### Archived snapshot
 
-```bash
-cd chat-eval            # or whatever you named the local clone
-git init
-git add README.md LICENSE .gitignore research_package
-git commit -m "Zero-budget evaluation of four chat models: 52-item protocol, 208 logged answers"
-git branch -M main
-git remote add origin https://github.com/prabeshdahal-official/chat-eval.git
-git push -u origin main
-```
-
-Then create a Release (tag `v1.0.0`), attach `chat_eval_research_fixed.zip` as a binary asset, and paste the Release link into the repo's About section. Keeping the zip out of git means the repository stays small and `git clone` stays fast, while the archived bytes remain downloadable and hash-verifiable.
-
-### Still worth doing before you send it to anyone
-
-- [ ] **Add your contact details** to `docs/FOR_PROFESSOR.md` if a named reviewer will read it. It currently argues the case without naming an author.
-- [ ] **Re-verify the model IDs** (`qwen3.5:4b`, `qwen3.5:9b`, `gemma4:12b`, `gemini-3.1-flash-lite`) against current Ollama and AI Studio listings, and record the date you checked. Tags rotate; this is the most likely claim to age badly.
-- [ ] **Add a citation block** once an arXiv ID exists. There is no DOI yet, so `CITATION.cff` would be premature.
-- [ ] **Keep `MANIFEST.json` valid.** Any future edit inside `research_package/` breaks it. Regenerate the manifest after such an edit, or state in the commit message that the manifest describes the archived run rather than the branch head.
+The 345 KB archive is attached to the `v1.0.0` Release rather than committed, so `git clone` stays fast while the exact bytes that were measured remain downloadable and hash-verifiable. The working tree here is the same content as `research_package/`.
 
 ---
 
@@ -693,8 +676,6 @@ Then create a Release (tag `v1.0.0`), attach `chat_eval_research_fixed.zip` as a
 
 Full machine details are in [`research_package/docs/PROVENANCE.md`](research_package/docs/PROVENANCE.md).
 
-This guide sits at the repository root, *outside* `research_package/`, so it is deliberately not listed in `MANIFEST.json` — editing it cannot break the hash check. The short `research_package/README.md` **is** listed, so treat that one as frozen with the archive.
+This guide sits at the repository root, *outside* `research_package/`, so it is deliberately not listed in `MANIFEST.json`. The short `research_package/README.md` **is** listed, which is why it is versioned together with the archive.
 
-**License:** MIT for the code, in [`LICENSE`](LICENSE) at the repo root. The measured outputs — `results/`, `results/charts/` and the documents in `docs/` — are offered under **CC BY 4.0**, so they can be reused in a write-up with attribution. If you need a single permissive licence across everything, MIT already covers the code and CC BY 4.0 adds attribution for the data; drop the second half of this sentence if you prefer one.
-
-**Citation:** *no DOI assigned; update this block after any arXiv submission.*
+**License:** MIT for the code, in [`LICENSE`](LICENSE) at the repo root. The measured outputs — `results/`, `results/charts/` and the documents in `docs/` — are offered under **CC BY 4.0**, so they can be reused in a write-up with attribution.
