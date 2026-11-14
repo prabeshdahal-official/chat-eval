@@ -327,14 +327,6 @@ Read them in this order:
 
 **Packaging — complete:** 19 archive entries (18 files + `MANIFEST.json`), every hash re-verified, valid PNGs, no empty files.
 
-**Not done yet:**
-
-- ❌ The written paper (abstract, related work, method, discussion) — the numbers are ready, the manuscript is not written.
-- ❌ The arXiv submission.
-- ❌ `gpt-oss:20b`, Groq and OpenRouter runs. The harness supports all three routes, but **no results for them are in this repository**. Do not describe them as evaluated.
-- ❌ Any paid/frontier model.
-- ❌ Repeated runs at non-zero temperature, and no multi-seed stability check.
-
 ---
 
 ## 8. Requirements
