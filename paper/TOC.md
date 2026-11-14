@@ -58,7 +58,7 @@ Position against five threads, one paragraph each. Every citation must be locate
 - **5.1 Model slate** — Qwen3.5 4B, Qwen3.5 9B, Gemma 4 12B via Ollama; Gemini 3.1 Flash Lite on the free tier. One table: registry key, route, model ID, parameters where known, VRAM, quantisation.
 - **5.2 Generation settings** — temperature 0, 4096 context, output budget (default, then 1,024 for the seven rerun items — stated as a deviation), thinking disabled for local models and why that is the fair comparison.
 - **5.3 Hardware and runtime** — Colab free Tesla T4, 15,360 MiB; Python 3.13.16; Ollama 0.40.16; wall-clock date of the run.
-- **5.4 Harness implementation** — single file, 1,041 lines, `requests` only, JSONL checkpointing, resume-safe by item ID.
+- **5.4 Harness implementation** — single file, 1,068 lines, `requests` only, JSONL checkpointing, resume-safe by item ID.
 
 ## 6. Results
 

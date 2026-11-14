@@ -5,7 +5,7 @@ Prepared 14 November 2026. Four chat models, 40 scored items plus 12 safety prob
 ## Contents
 
 ```
-code/harness.py        the harness that produced these results (1041 lines)
+code/harness.py        the harness that produced these results (1068 lines)
 code/cells/*.py        the repair cells, kept as scripts for the audit trail
 results/*.jsonl        one record per (model, item): raw response, score, timing
 results/results.csv    one row per model (authoritative summary table)

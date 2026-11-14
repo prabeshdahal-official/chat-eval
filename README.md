@@ -14,7 +14,7 @@ Everything here was run on a **free Google Colab T4 GPU** and a **free Gemini AP
 | Errors / empty / truncated answers | 0 / 0 / 0 |
 | Compute used | Google Colab, free Tesla T4 (15,360 MiB) |
 | API spend | \$0 |
-| Harness size | 1,041 lines, single file, one dependency |
+| Harness size | 1,068 lines, single file, one dependency |
 
 ---
 
@@ -86,8 +86,8 @@ This section is included because the *order* of work explains the shape of the c
 Everything that executes lives in one file:
 
 ```
-research_package/code/harness.py      44,033 bytes · 1,041 lines
-sha256 40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a
+research_package/code/harness.py      46,561 bytes · 1,068 lines
+sha256 2b9d1eabd3255ff0d6d00d4138962a0c2abd40d9211bb1f05758c039ae4613cd
 ```
 
 Three other places hold code, but none of them are needed to reproduce a run:
@@ -660,8 +660,8 @@ The 345 KB archive is attached to the `v1.0.0` Release rather than committed, so
 
 | Item | Value |
 |---|---|
-| Harness | `research_package/code/harness.py` · 44,033 bytes · 1,041 lines |
-| Harness sha256 | `40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a` |
+| Harness | `research_package/code/harness.py` · 46,561 bytes · 1,068 lines |
+| Harness sha256 | `2b9d1eabd3255ff0d6d00d4138962a0c2abd40d9211bb1f05758c039ae4613cd` |
 | Environment | Python 3.13.16 · Linux 6.6.159 (Colab) · Ollama 0.40.16 · Tesla T4, 15,360 MiB |
 | Protocol | 40 main items + 12 safety probes · temperature 0 · bootstrap 95% intervals over items |
 | Archive | 19 entries (18 files + `MANIFEST.json`) |

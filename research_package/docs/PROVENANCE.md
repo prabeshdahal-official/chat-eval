@@ -5,8 +5,8 @@ Python: 3.13.16
 Platform: Linux-6.6.159+-x86_64-with-glibc2.39  (Google Colab, free T4 runtime)
 Ollama: ollama version is 0.40.16
 GPU: Tesla T4, 15360 MiB
-harness.py sha256: 40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a
-harness.py lines: 1041
+harness.py sha256: 2b9d1eabd3255ff0d6d00d4138962a0c2abd40d9211bb1f05758c039ae4613cd
+harness.py lines: 1068
 Notebook: notebook/chat_eval_colab.ipynb (249200 bytes)
 
 ## Models evaluated

@@ -51,7 +51,7 @@ We make four contributions.
 1. **A fixed question set.** 52 questions with a written expected answer for each one. The set is published in Appendix A and in the code.
 2. **Two scoring rules instead of one.** We score each answer for correctness (retrieval) and for directness (answer-first). The second rule measures whether the model puts the answer near the start of the reply or hides it in a long text.
 3. **208 logged answers, published raw.** Every reply from every model is saved as one line in a JSONL file. Any number in this paper can be traced back to the exact text that produced it.
-4. **A small program that repeats the run.** One Python file, 1,041 lines, one outside library. It saves answers as it goes, so a lost connection does not lose the work.
+4. **A small program that repeats the run.** One Python file, 1,068 lines, one outside library. It saves answers as it goes, so a lost connection does not lose the work.
 
 ### 1.4 What this paper does not claim
 
@@ -290,7 +290,7 @@ Two of these need a word of explanation.
 
 ### 5.4 The harness
 
-The whole study runs from one file, `harness.py`: 1,041 lines, one outside library (`requests`), no framework.
+The whole study runs from one file, `harness.py`: 1,068 lines, one outside library (`requests`), no framework.
 
 It does four jobs. It holds the questions. It calls the model. It saves each reply to a JSONL file the moment it arrives. It computes the scores and writes the table and the charts.
 
@@ -575,7 +575,7 @@ for e in man["files"]:
 print("all", len(man["files"]), "files verified")
 ```
 
-The harness itself has SHA-256 `40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a`, 44,033 bytes, 1,041 lines. If a reader's copy differs, the numbers in Section 6 do not apply to it.
+The harness itself has SHA-256 `2b9d1eabd3255ff0d6d00d4138962a0c2abd40d9211bb1f05758c039ae4613cd`, 46,561 bytes, 1,068 lines. If a reader's copy differs, the numbers in Section 6 do not apply to it.
 
 ### 10.4 What a re-run will not give you
 
@@ -768,6 +768,8 @@ Four problems occurred during the study. Each one changed the code or the record
 
 **4. Seven items hit the output ceiling.** These were rerun with a 1,024-token limit instead of 512. This is the deviation noted in Section 5.2 and Section 8, item 7.
 
+**5. An empty figure.** The safety chart plotted two rates that were both zero, and a bar chart of zeros renders as an empty frame with a vertical axis from -0.04 to 0.04. The plotting code now draws counts out of six, and a fourth chart shows the strict-lenient gap. Only the drawing code changed; no score was touched, which is why the numbers in Section 6 are unaffected.
+
 The audit scripts that found problems 1 and 2 are kept in the repository under `code/cells/`, because a bug that is fixed quietly is a bug a reader cannot check.
 
 ---
@@ -776,8 +778,8 @@ The audit scripts that found problems 1 and 2 are kept in the repository under `
 
 | Item | Value |
 |---|---|
-| Harness | `harness.py`, 44,033 bytes, 1,041 lines |
-| Harness SHA-256 | `40d554f8f5abfa8871c969bc07c594a83d10eb29f35dd3ef776b9dce1f21047a` |
+| Harness | `harness.py`, 46,561 bytes, 1,068 lines |
+| Harness SHA-256 | `2b9d1eabd3255ff0d6d00d4138962a0c2abd40d9211bb1f05758c039ae4613cd` |
 | Python | 3.13.16 |
 | Platform | Linux 6.6.159, Google Colab image |
 | GPU | Tesla T4, 15,360 MiB |
