@@ -15,8 +15,8 @@ Draft of the title block, abstract and keywords. Written in plain English: short
 **Prabesh Dahal**
 Independent Researcher, Kathmandu, Nepal
 
-- Email: *to be added* — use the address you want public.
-- ORCID: *to be added* — optional, but it makes the paper easier to link to your other work.
+krip.prabesh@gmail.com · ORCID 0009-0002-1716-0724 · https://prabeshdahal.info.np/
+
 - Affiliation is written as “Independent Researcher” because no university or company funded or hosted this study.
 
 ## Abstract

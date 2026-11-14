@@ -7,6 +7,8 @@ A publication-ready table of contents for the measurement study behind this repo
 **Form:** short measurement paper / benchmark note. Primary category `cs.AI` — the category the endorsement covers. Target 8–10 pages including references.
 **Claim discipline:** the study reports a null result on ranking. Any section that would imply a winner contradicts §6.3 and must be rewritten.
 
+**Status:** title, author block, abstract and keywords are in `front_matter.md`. The full draft, including all 11 sections and Appendices A–E, is in `main.md`.
+
 ---
 
 ## Front matter
@@ -165,7 +167,7 @@ Populate only with sources actually opened and verified. Suggested search target
 ## Open items to resolve before submission
 
 - [x] **Primary category: `cs.AI`.** Settled — it is the endorsed category, which removes a submission blocker. When filling in metadata, lead the abstract with the evaluation framing so a `cs.AI` reader sees immediately why a chat-model comparison belongs here rather than in `cs.CL`. If arXiv reclassifies the paper, that is a moderation decision, not a rejection; the artifact and the results stand either way.
-- [ ] Verify every reference by opening it. No citation enters the bibliography unopened.
+- [x] **References verified.** Six sources, each opened on 14 November 2026: MMLU, HELM, MT-Bench/Chatbot Arena, the Nepali NLU benchmark, Ollama, and the Gemini API documentation. No citation was written from memory.
 - [ ] Re-check the four model IDs against current Ollama and AI Studio listings, and record the date checked.
 - [ ] Decide whether Figure 4 (the gap) is computed in the harness or in a short plotting script; if the latter, ship that script with the artifact.
-- [ ] Confirm the repository URL and release tag render in the compiled PDF.
+- [ ] Confirm the repository URL and release tag render in the compiled PDF. *(URL is written in `main.md`; the tagged release does not exist yet.)*
